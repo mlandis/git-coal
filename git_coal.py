@@ -2,12 +2,11 @@ import time
 import os,sys
 import scipy.stats
 import getpass
-from random import choice
+from random import choice,shuffle
 
-def run(n_tip=4,coal_rate=.1,username='mlandis',password=''):
+def run(n_tip=4,coal_rate=.1):
 
-    if password == '':
-        password = getpass.getpass()
+    clean_git(n_tip=n_tip)
 
     # init
     cmd_list = []
@@ -26,9 +25,13 @@ def run(n_tip=4,coal_rate=.1,username='mlandis',password=''):
         times.append(scipy.stats.expon.rvs(n_choose_2[n]*coal_rate))
 
         # sample pair
-        idx_list = range(n)
-        idx_1 = idx_list(pop(choose(idx_list)))
-        idx_2 = idx_list(pop(choose(idx_list)))
+        idx_1 = int(scipy.stats.uniform.rvs(0,n))
+        idx_2 = idx_1
+        while idx_1 == idx_2:
+            idx_2 = int(scipy.stats.uniform.rvs(0,n))
+        print idx_1,idx_2
+
+        print 'merge',branch_names[idx_1],'and',branch_names[idx_2],'at',times[-1]
 
         # generate merge/coalesce commands
         cmd_list.append('git checkout ' + branch_names[idx_1] + '\n')
@@ -37,7 +40,6 @@ def run(n_tip=4,coal_rate=.1,username='mlandis',password=''):
         # remove 2nd lineage from pool
         branch_names.pop(idx_2)
 
-        print len(branch_names)
 
         #stream = os.popen(coal_str)
         # stream_str = stream.readlines()
@@ -52,7 +54,10 @@ def run(n_tip=4,coal_rate=.1,username='mlandis',password=''):
 
     os.popen('git commit -a -m \"mrca reached\"')
 
-def clean_git(n_tip=4,username='mlandis',password=''):
+
+def clean_git(n_tip=4):
+    
+    os.popen('git checkout master')
    
     # wipe remote
     clean_str = 'git push origin'
@@ -60,7 +65,7 @@ def clean_git(n_tip=4,username='mlandis',password=''):
     for bn in branch_names:
         clean_str += ' :' + bn
     clean_str += '\n'
-    os.popen(clean_str)
+    s = os.popen(clean_str)
 
     # wipe local
     clean_str = 'git branch -D'
@@ -68,4 +73,5 @@ def clean_git(n_tip=4,username='mlandis',password=''):
     for bn in branch_names:
         clean_str += ' ' + bn
     clean_str += '\n'
-    os.popen(clean_str)
+    s = os.popen(clean_str)
+
