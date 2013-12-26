@@ -60,7 +60,8 @@ def sim(n_tip=4,coal_rate=.1):
         #[ os.popen(cmd) for cmd in cmd_block ]
 
     os.popen('git checkout master')
-    os.popen('git commit -a -m \"mrca reached\"')
+    os.popen('git merge ' + branch_names[0])
+    os.popen('git commit -a -m \"merge mrca w master\"')
     os.popen('git push origin master')
 
 
