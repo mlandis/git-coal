@@ -66,20 +66,20 @@ def sim(n_tip=10,coal_rate=.1):
 def clean_git(n_tip=10):
     
     os.popen('git checkout master')
+    
+    # clean local files
+    os.popen('rm branch_*.*')
    
     # wipe remote
-    clean_str = 'git push origin'
-    branch_names = [ 'branch_'+str(n) for n in range(n_tip) ]
-    for bn in branch_names:
-        clean_str += ' :' + bn
-    clean_str += '\n'
+    for bn in [ 'branch_'+str(n) for n in range(n_tip) ]:
+        os.popen('git push origin  :' + bn)
     s = os.popen(clean_str)
 
     # wipe local
-    os.popen('rm branch_*.*')
     clean_str = 'git branch -D'
     branch_names = [ 'branch_'+str(n) for n in range(n_tip) ]
     for bn in branch_names:
         clean_str += ' ' + bn
     clean_str += '\n'
     s = os.popen(clean_str)
+
