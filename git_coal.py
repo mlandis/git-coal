@@ -50,7 +50,10 @@ def run(n_tip=4,coal_rate=.1):
     # execute in block for speed
     for idx,cmd_block in enumerate(cmd_list):
         time.sleep(times[idx])
-        [ os.popen(cmd) for cmd in cmd_block ]
+        for cmd in cmd_block:
+            time.sleep(0.1) # to avoid .git/index.lock errors
+            os.popen(cmd)
+        #[ os.popen(cmd) for cmd in cmd_block ]
 
     os.popen('git checkout master')
     os.popen('git commit -a -m \"mrca reached\"')
