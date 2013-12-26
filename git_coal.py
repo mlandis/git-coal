@@ -17,6 +17,7 @@ def sim(n_tip=4,coal_rate=.1):
         os.popen('git checkout -b ' + bn)
         os.popen('touch ' + bn + '.txt')
         os.popen('git add ' + bn + '.txt')
+        os.popen('git commit -a -m \"add ' + bn + '\"')
         os.popen('git push origin ' + bn)
         raw_input('next')
 
@@ -41,7 +42,7 @@ def sim(n_tip=4,coal_rate=.1):
         cmd_block = []
         cmd_block.append('git checkout ' + bn[0])
         cmd_block.append('git merge ' + bn[1])
-        cmd_block.append('git commit -a -m \"add ' + bn[1] + '\"')
+        cmd_block.append('git commit -a -m \"merge ' + bn[1] + '\"')
         cmd_block.append('git push origin ' + bn[0])
         cmd_list.append(cmd_block)
 
