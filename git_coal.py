@@ -22,7 +22,7 @@ def run(n_tip=4,coal_rate=.1):
 
         # sample time
         n = len(branch_names)
-        times.append(scipy.stats.expon.rvs(n_choose_2[n]*coal_rate))
+        times.append(scipy.stats.expon.rvs(1./(n_choose_2[n]*coal_rate)))
 
         # sample pair
         idx_1 = int(scipy.stats.uniform.rvs(0,n))
