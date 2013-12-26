@@ -38,9 +38,9 @@ def run(n_tip=4,coal_rate=.1):
 
         # generate merge/coalesce commands
         cmd_block = []
-        cmd_block.append('git checkout ' + bn[0] + '\n')
-        cmd_block.append('git merge ' + bn[1] + '\n')
-        cmd_block.append('git commit -a -m \"add ' + bn[1] + '\"\n')
+        cmd_block.append('git checkout ' + bn[0])
+        cmd_block.append('git merge ' + bn[1])
+        cmd_block.append('git commit -a -m \"add ' + bn[1] + '\"')
         cmd_block.append('git push origin ' + bn[0])
         cmd_list.append(cmd_block)
 
