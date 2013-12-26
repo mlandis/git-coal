@@ -23,7 +23,6 @@ def run(n_tip=4,coal_rate=.1):
     n_choose_2 = [ None ]*2 + [ float(n*(n-1)/2) for n in range(2,n_tip+1) ]
     while len(branch_names) > 1:
 
-
         # sample time
         n = len(branch_names)
         times.append(scipy.stats.expon.rvs(1./(n_choose_2[n]*coal_rate)))
@@ -42,6 +41,7 @@ def run(n_tip=4,coal_rate=.1):
         cmd_block.append('git checkout ' + bn[0] + '\n')
         cmd_block.append('git merge ' + bn[1] + '\n')
         cmd_block.append('git commit -a -m \"add ' + bn[1] + '\"\n')
+        cmd_block.append('git push origin ' + bn[0])
         cmd_list.append(cmd_block)
 
         # remove 2nd lineage from pool
@@ -49,14 +49,12 @@ def run(n_tip=4,coal_rate=.1):
 
     # execute in block for speed
     for idx,cmd_block in enumerate(cmd_list):
-        print times[idx],cmd
         time.sleep(times[idx])
         [ os.popen(cmd) for cmd in cmd_block ]
-        #os.popen(cmd_list.pop())
-        #os.popen(cmd_list.pop())
 
     os.popen('git checkout master')
     os.popen('git commit -a -m \"mrca reached\"')
+    os.popen('git push origin master')
 
 
 def clean_git(n_tip=4):
