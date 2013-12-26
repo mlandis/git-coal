@@ -4,7 +4,7 @@ import scipy.stats
 import getpass
 from random import choice,shuffle
 
-def sim(n_tip=4,coal_rate=.1):
+def sim(n_tip=10,coal_rate=.1):
 
     clean_git(n_tip=n_tip)
 
@@ -19,7 +19,6 @@ def sim(n_tip=4,coal_rate=.1):
         os.popen('git add ' + bn + '.txt')
         os.popen('git commit -a -m \"add ' + bn + '\"')
         os.popen('git push origin ' + bn)
-        raw_input('next')
 
     # coalesce
     n_choose_2 = [ None ]*2 + [ float(n*(n-1)/2) for n in range(2,n_tip+1) ]
@@ -55,9 +54,8 @@ def sim(n_tip=4,coal_rate=.1):
         for cmd in cmd_block:
             time.sleep(0.1) # to avoid .git/index.lock errors
             print cmd
-            raw_input('next')
             os.popen(cmd)
-        #[ os.popen(cmd) for cmd in cmd_block ]
+        raw_input('next')
 
     os.popen('git checkout master')
     os.popen('git merge ' + branch_names[0])
@@ -65,7 +63,7 @@ def sim(n_tip=4,coal_rate=.1):
     os.popen('git push origin master')
 
 
-def clean_git(n_tip=4):
+def clean_git(n_tip=10):
     
     os.popen('git checkout master')
    
