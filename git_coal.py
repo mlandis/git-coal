@@ -4,7 +4,7 @@ import scipy.stats
 
 def sim(n_tip=10,coal_rate=.1):
 
-    clean_git(n_tip)
+    #clean_git(n_tip)
 
     # init
     cmd_list = []
