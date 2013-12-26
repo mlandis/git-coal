@@ -18,8 +18,8 @@ def sim(n_tip=4,coal_rate=.1):
         os.popen('touch ' + bn + '.txt')
         os.popen('git add ' + bn + '.txt')
         os.popen('git push origin ' + bn)
+        raw_input('next')
 
-    raw_input('next')
     # coalesce
     n_choose_2 = [ None ]*2 + [ float(n*(n-1)/2) for n in range(2,n_tip+1) ]
     while len(branch_names) > 1:
