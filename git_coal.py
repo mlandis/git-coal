@@ -31,7 +31,7 @@ def run(n_tip=4,coal_rate=.1):
             idx_2 = int(scipy.stats.uniform.rvs(0,n))
         print idx_1,idx_2
 
-        print 'merge',branch_names[idx_1],'and',branch_names[idx_2],'at',times[-1]
+        print 'merge',branch_names[idx_1],'and',branch_names[idx_2],'dt',times[-1]
 
         # generate merge/coalesce commands
         cmd_list.append('git checkout ' + branch_names[idx_1] + '\n')
