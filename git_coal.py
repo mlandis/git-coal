@@ -4,7 +4,7 @@ import scipy.stats
 import getpass
 from random import choice,shuffle
 
-def run(n_tip=4,coal_rate=.1):
+def sim(n_tip=4,coal_rate=.1):
 
     clean_git(n_tip=n_tip)
 
@@ -14,11 +14,12 @@ def run(n_tip=4,coal_rate=.1):
     branch_names = [ 'branch_'+str(n) for n in range(n_tip) ]
     for bn in branch_names:
         os.popen('git checkout master')
-        os.popen('git checkout -b '+bn)
-        os.popen('touch '+bn+'.txt')
-        os.popen('git add '+bn+'.txt')
-        os.popen('git push origin '+bn)
+        os.popen('git checkout -b ' + bn)
+        os.popen('touch ' + bn + '.txt')
+        os.popen('git add ' + bn + '.txt')
+        os.popen('git push origin ' + bn)
 
+    raw_input('next')
     # coalesce
     n_choose_2 = [ None ]*2 + [ float(n*(n-1)/2) for n in range(2,n_tip+1) ]
     while len(branch_names) > 1:
