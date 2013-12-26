@@ -33,16 +33,15 @@ def run(n_tip=4,coal_rate=.1):
         idx_2 = idx_1
         while idx_1 == idx_2:
             idx_2 = int(scipy.stats.uniform.rvs(0,n))
-        print idx_1,idx_2
+        bn = [ branch_names[idx_1], branch_names[idx_2] ]
 
         print 'merge',branch_names[idx_1],'and',branch_names[idx_2],'dt',times[-1]
 
         # generate merge/coalesce commands
         cmd_block = []
-        bn2 = branch_names[idx_2]
-        cmd_block.append('git checkout ' + branch_names[idx_1] + '\n')
-        cmd_block.append('git merge ' + bn2 + '\n')
-        cmd_block.append('git commit -a -m \"add ' + bn2 + '\"\n')
+        cmd_block.append('git checkout ' + bn[0] + '\n')
+        cmd_block.append('git merge ' + bn[1] + '\n')
+        cmd_block.append('git commit -a -m \"add ' + bn[1] + '\"\n')
         cmd_list.append(cmd_block)
 
         # remove 2nd lineage from pool
