@@ -12,7 +12,8 @@ def sim(n_tip=10,coal_rate=.1):
     branch_names = [ 'branch_'+str(n) for n in range(n_tip) ]
     for bn in branch_names:
         os.popen('git checkout master')
-        os.popen('git checkout -b ' + bn)
+        os.popen('git branch ' + bn)
+        os.popen('git checkout ' + bn)
         os.popen('touch ' + bn + '.txt')
         os.popen('git add ' + bn + '.txt')
         os.popen('git commit -a -m \"add ' + bn + '\"')
