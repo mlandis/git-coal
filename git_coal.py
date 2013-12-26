@@ -13,12 +13,16 @@ def run(n_tip=4,coal_rate=.1):
     times = []
     branch_names = [ 'branch_'+str(n) for n in range(n_tip) ]
     for bn in branch_names:
-        os.popen('git checkout master;git checkout -b '+bn+';git push origin '+bn)
-
+        os.popen('git checkout master')
+        os.popen('git checkout -b '+bn)
+        os.popen('touch '+bn+'.txt')
+        os.popen('git add '+bn+'.txt')
+        os.popen('git push origin '+bn)
 
     # coalesce
     n_choose_2 = [ None ]*2 + [ float(n*(n-1)/2) for n in range(2,n_tip+1) ]
     while len(branch_names) > 1:
+
 
         # sample time
         n = len(branch_names)
@@ -34,24 +38,25 @@ def run(n_tip=4,coal_rate=.1):
         print 'merge',branch_names[idx_1],'and',branch_names[idx_2],'dt',times[-1]
 
         # generate merge/coalesce commands
-        cmd_list.append('git checkout ' + branch_names[idx_1] + '\n')
-        cmd_list.append('git merge ' + branch_names[idx_2] + '\n')
+        cmd_block = []
+        bn2 = branch_names[idx_2]
+        cmd_block.append('git checkout ' + branch_names[idx_1] + '\n')
+        cmd_block.append('git merge ' + bn2 + '\n')
+        cmd_block.append('git commit -a -m \"add ' + bn2 + '\"\n')
+        cmd_list.append(cmd_block)
 
         # remove 2nd lineage from pool
         branch_names.pop(idx_2)
 
-
-        #stream = os.popen(coal_str)
-        # stream_str = stream.readlines()
-
     # execute in block for speed
-    while len(cmd_list) > 0:
-        t = times.pop()
-        print t
-        time.sleep(t)
-        os.popen(cmd_list.pop())
-        os.popen(cmd_list.pop())
+    for idx,cmd_block in enumerate(cmd_list):
+        print times[idx],cmd
+        time.sleep(times[idx])
+        [ os.popen(cmd) for cmd in cmd_block ]
+        #os.popen(cmd_list.pop())
+        #os.popen(cmd_list.pop())
 
+    os.popen('git checkout master')
     os.popen('git commit -a -m \"mrca reached\"')
 
 
@@ -68,10 +73,10 @@ def clean_git(n_tip=4):
     s = os.popen(clean_str)
 
     # wipe local
+    os.popen('rm branch_*.*')
     clean_str = 'git branch -D'
     branch_names = [ 'branch_'+str(n) for n in range(n_tip) ]
     for bn in branch_names:
         clean_str += ' ' + bn
     clean_str += '\n'
     s = os.popen(clean_str)
-
