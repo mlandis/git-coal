@@ -53,6 +53,7 @@ def run(n_tip=4,coal_rate=.1):
         for cmd in cmd_block:
             time.sleep(0.1) # to avoid .git/index.lock errors
             print cmd
+            raw_input('next')
             os.popen(cmd)
         #[ os.popen(cmd) for cmd in cmd_block ]
 
