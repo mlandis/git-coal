@@ -58,9 +58,9 @@ def sim(n_tip=10,coal_rate=.1):
         raw_input('next')
 
     os.popen('git checkout master')
-    os.popen('git merge ' + branch_names[0])
-    os.popen('git commit -a -m \"merge mrca w master\"')
-    os.popen('git push origin master')
+    #os.popen('git merge ' + branch_names[0])
+    #os.popen('git commit -a -m \"merge mrca w master\"')
+    #os.popen('git push origin master')
 
 
 def clean_git(n_tip=10):
