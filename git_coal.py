@@ -1,12 +1,10 @@
 import time
 import os,sys
 import scipy.stats
-import getpass
-from random import choice,shuffle
 
 def sim(n_tip=10,coal_rate=.1):
 
-    clean_git(n_tip=n_tip)
+    clean_git(n_tip)
 
     # init
     cmd_list = []
