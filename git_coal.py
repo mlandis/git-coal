@@ -40,8 +40,8 @@ def sim(n_tip=10,coal_rate=.1):
         cmd_block = []
         cmd_block.append('git checkout ' + bn[0])
         #cmd_block.append('git add ' + bn[1] + ".txt")
-        cmd_block.append('git merge ' + bn[1])
-        cmd_block.append('git commit -a -m \"merge ' + bn[1] + '\"')
+        cmd_block.append('git merge --checkout ' + bn[1])
+        #cmd_block.append('git commit -a -m \"merge ' + bn[1] + '\"')
         cmd_block.append('git push origin ' + bn[0])
         cmd_list.append(cmd_block)
 
