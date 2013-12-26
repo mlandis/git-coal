@@ -73,7 +73,6 @@ def clean_git(n_tip=10):
     # wipe remote
     for bn in [ 'branch_'+str(n) for n in range(n_tip) ]:
         os.popen('git push origin  :' + bn)
-    s = os.popen(clean_str)
 
     # wipe local
     clean_str = 'git branch -D'
