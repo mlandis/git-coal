@@ -50,12 +50,12 @@ def sim(n_tip=10,coal_rate=.1):
 
     # execute in block for speed
     for idx,cmd_block in enumerate(cmd_list):
-        time.sleep(times[idx])
+        #time.sleep(times[idx])
         for cmd in cmd_block:
             time.sleep(0.1) # to avoid .git/index.lock errors
             print cmd
             os.popen(cmd)
-        raw_input('next')
+        #raw_input('next')
 
     os.popen('git checkout master')
     #os.popen('git merge ' + branch_names[0])
