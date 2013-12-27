@@ -38,7 +38,7 @@ def sim(n_tip=10,Ne=1000.,coal_rate=.1):
 
         # generate merge/coalesce commands
         cmd_block = []
-        cmd_block.append('git checkout -f t' + bn[0])
+        cmd_block.append('git checkout -f ' + bn[0])
         #cmd_block.append('git add ' + bn[1] + ".txt")
         cmd_block.append('git merge --commit ' + bn[1] + ' -m \"coalesce ' + bn[0] + ' and ' + bn[1] + ' at time ' + str(scipy.sum(times)) + '\"') 
         #cmd_block.append('git commit -a -m \"merge ' + bn[1] + '\"')
