@@ -16,17 +16,16 @@ class GitGraph(object):
         n_branches = 0
         
         for l in lines:
-            #print l
             nd_args = l.strip('\"').split(',')
-            print nd_args
+            #print nd_args
             
             nd_sha = nd_args[0]
-            t = float(nd_args[2].split(' ')[0])
+            nd_t = float(nd_args[2].split(' ')[0])
             nd_msg = nd_args[3]
 
             # add new nodes to graph
             if nd_sha not in self.nodes:
-                self.nodes[nd_sha] = GitNode(nd_sha,t,nd_msg)
+                self.nodes[nd_sha] = GitNode(nd_sha,nd_t,nd_msg)
                 n_branches += 1
 
             # update parent/child relationship
@@ -43,7 +42,7 @@ class GitGraph(object):
                     n_branches -= 1
 
             # update counts
-            self.count[t] = n_branches
+            self.count[nd_t] = n_branches
 
 
 class GitNode(object):
