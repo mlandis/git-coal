@@ -2,7 +2,7 @@ import time
 import os,sys
 import scipy.stats
 
-def sim(n_tip=10,coal_rate=.1):
+def sim(n_tip=10,Ne=1000.,coal_rate=.1):
 
     #clean_git(n_tip)
 
@@ -34,13 +34,13 @@ def sim(n_tip=10,coal_rate=.1):
             idx_2 = int(scipy.stats.uniform.rvs(0,n))
         bn = [ branch_names[idx_1], branch_names[idx_2] ]
 
-        print 'merge',branch_names[idx_1],'and',branch_names[idx_2],'dt',times[-1]
+        #print 'merge',branch_names[idx_1],'and',branch_names[idx_2],'dt',times[-1]
 
         # generate merge/coalesce commands
         cmd_block = []
         cmd_block.append('git checkout ' + bn[0])
         #cmd_block.append('git add ' + bn[1] + ".txt")
-        cmd_block.append('git merge --commit ' + bn[1])
+        cmd_block.append('git merge --commit ' + bn[1] + ' -m \"coalesce ' + bn[0] + ' and ' + bn[1] + ' at time ' + str(scipy.sum(times)) + '\"') 
         #cmd_block.append('git commit -a -m \"merge ' + bn[1] + '\"')
         cmd_block.append('git push origin ' + bn[0])
         cmd_list.append(cmd_block)
