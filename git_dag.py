@@ -1,7 +1,8 @@
 import time
 import os,sys
-import scipy.stats
+import scipy.stats, scipy.optimize
 import subprocess
+from scipy.optimize import minimize
 
 class GitGraph(object):
     def __init__(self):
@@ -12,9 +13,9 @@ class GitGraph(object):
 
     def make_graph(self):
         cmd_str = 'git log --date=raw --pretty=format:\"%h,%p,%ad,%s\"'
-
         lines = subprocess.check_output(cmd_str.split(' ')).splitlines()
         lines.reverse()
+
         n_branches = 0
         n_gain = 0
         n_loss = 0
@@ -53,31 +54,45 @@ class GitGraph(object):
             self.gain[nd_t] = n_gain
             self.loss[nd_t] = n_loss
 
-    def bd_llik(self,birth_rate=1.0,death_rate=1.0):
-        T = sorted(self.count.keys())
+    def llik(self,args=[.1,.1,.1]):
+        
+        x=self.count
+        branch_rate=args[0]
+        merge_rate=args[1]
+        commit_rate=args[2]
+        
         llik = 0.
         old_n = 1
         old_t = 0.
+        T = sorted(x.keys())
         for i,t in enumerate(T):
             if i == 0:
                 old_t = t
                 continue
 
-            n = self.count[t]
+            n = x[t]
             if n > old_n:
-                r = birth_rate
+                r = branch_rate
             elif n < old_n:
-                r = death_rate
+                r = merge_rate
             else:
-                continue
+                r = commit_rate
 
-            llik += scipy.log(r) - n * (death_rate + birth_rate) * (t - old_t)
-            print n,t,llik
+            if n > 1: 
+                llik += scipy.log(r) - n * (branch_rate + merge_rate + commit_rate) * (t - old_t)
+            else:
+                llik += scipy.log(r) - n * (branch_rate + commit_rate) * (t - old_t)
+
+            #print n,t-old_t,branch_rate,merge_rate,commit_rate,llik
 
             old_n = n 
             old_t = t
         
-        return(llik)
+        return(-llik)
+
+    def find_mle(self):
+        o = scipy.optimize.fmin_l_bfgs_b(func=self.llik,x0=scipy.stats.expon.rvs(.1,size=3),bounds=[(1e-9,None)]*3,approx_grad=True,factr=10.,epsilon=.0001,pgtol=1e-10)
+        return o
 
 class GitNode(object):
     def __init__(self,sha='',t=0.,m=''):
