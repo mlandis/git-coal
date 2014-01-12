@@ -3,6 +3,7 @@ import os,sys
 import scipy.stats, scipy.optimize
 import subprocess
 from scipy.optimize import minimize
+import random
 
 class GitGraph(object):
     def __init__(self):
@@ -11,7 +12,9 @@ class GitGraph(object):
         self.gain = {}
         self.loss = {}
 
-    def make_graph(self):
+    def make_graph(self,fp='.'):
+        cwd=os.getcwd()
+        os.chdir(fp)
         cmd_str = 'git log --date=raw --pretty=format:\"%h,%p,%ad,%s\"'
         lines = subprocess.check_output(cmd_str.split(' ')).splitlines()
         lines.reverse()
@@ -53,6 +56,7 @@ class GitGraph(object):
             self.count[nd_t] = n_branches
             self.gain[nd_t] = n_gain
             self.loss[nd_t] = n_loss
+        os.chdir(cwd)
 
     def llik(self,args=[.1,.1,.1]):
         
@@ -88,11 +92,65 @@ class GitGraph(object):
             old_n = n 
             old_t = t
         
-        return(-llik)
+        return(llik)
 
     def find_mle(self):
-        o = scipy.optimize.fmin_l_bfgs_b(func=self.llik,x0=scipy.stats.expon.rvs(.1,size=3),bounds=[(1e-9,None)]*3,approx_grad=True,factr=10.,epsilon=.0001,pgtol=1e-10)
+        o = scipy.optimize.fmin_l_bfgs_b(func=self.llik,x0=scipy.stats.expon.rvs(.1,size=3),bounds=[(1e-9,None)]*3,approx_grad=True,factr=10.,epsilon=.0001,pgtol=1e-30)
         return o
+
+    def run_mcmc(self,n=5000,prior=[10.]*3,thin=10,burn=0.2):
+
+        # file
+        f = open('mcmc.txt','w')
+        f.write('cycle\tlnPosterior\tlnLikelihood\tlnPrior\trate_branch\trate_merge\trate_commit\n')
+        
+        # initialize mcmc
+        params=[ scipy.stats.expon.rvs(scale=1./p) for p in prior ]
+        old_lnL = self.llik(params)
+        old_lnP = sum( [scipy.stats.expon.logpdf(x=p,scale=1./prior[i]) for i,p in enumerate(params) ])
+
+        # run mcmc
+        for i in range(1,n+1):
+
+            # propose state
+            p_idx = random.sample(range(len(params)),1)[0]
+            p_old = params[p_idx]
+            params[p_idx],lnMH=self.propose(params[p_idx])
+
+            # evaluate MH ratio 
+            new_lnL = self.llik(params)
+            new_lnP = old_lnP + scipy.stats.expon.logpdf(x=params[p_idx],scale=1./prior[p_idx]) - scipy.stats.expon.logpdf(x=p_old,scale=1./prior[p_idx])
+            lnR = (new_lnL - old_lnL) + (new_lnP - old_lnP) + lnMH
+            
+            # accept/reject
+            accept = False
+            if lnR < -300:
+                accept = False
+            elif lnR >= 0:
+                accept = True
+            elif scipy.stats.uniform.rvs() < scipy.exp(lnR):
+                accept = True
+            else:
+                accept = False
+
+            # update
+            if accept == True:
+                old_lnL = new_lnL
+                old_lnP = new_lnP
+            else:
+                params[p_idx] = p_old
+
+            if i % thin == 0:
+                print i,old_lnL,old_lnP,params
+                if i >= burn*n:
+                    s = '\t'.join([ str(e) for e in [i,old_lnL+old_lnP,old_lnL,old_lnP]+params ]) + '\n'
+                    f.write(s)
+        f.close()
+
+    def propose(self,p,d=1.0):
+        r = scipy.exp(d*(.5-scipy.stats.uniform.rvs()))
+        return p*r, scipy.log(r)
+        
 
 class GitNode(object):
     def __init__(self,sha='',t=0.,m=''):
