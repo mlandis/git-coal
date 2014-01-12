@@ -1,11 +1,31 @@
 import time
+import random
 import os,sys
 import scipy.stats, scipy.optimize
 import subprocess
 from scipy.optimize import minimize
-import random
+
+class GitNode(object):
+    '''
+    GitNode stores parent,child,time,msg,sha info from git history
+    '''
+    def __init__(self,sha='',t=0.,m=''):
+        self.sha = sha
+        self.time = t
+        self.msg = m
+        self.parents = [] 
+        self.children = []
+
+    def add_parent(self,parent):
+        self.parents.append(parent)
+
+    def add_child(self,child):
+        self.children.append(child)
 
 class GitGraph(object):
+    '''
+    GitGraph stores git-log history
+    '''
     def __init__(self):
         self.nodes = {}
         self.count = {}
@@ -13,6 +33,10 @@ class GitGraph(object):
         self.loss = {}
 
     def make_graph(self,fp='.'):
+        '''
+        Populates GitGraph using GitNode objects.
+        Reads git-log output from directory at fp.
+        '''
         cwd=os.getcwd()
         os.chdir(fp)
         cmd_str = 'git log --date=raw --pretty=format:\"%h,%p,%ad,%s\"'
@@ -59,6 +83,11 @@ class GitGraph(object):
         os.chdir(cwd)
 
     def llik(self,args=[.1,.1,.1]):
+        '''
+        Returns log likelihood of graph.
+        Event types are B(ranch), M(erge), C(ommit; excluding branch/merge)
+        All branches undergo events B,M,C at rates r_B,r_M,r_C respectively
+        '''
         
         x=self.count
         branch_rate=args[0]
@@ -98,10 +127,12 @@ class GitGraph(object):
         o = scipy.optimize.fmin_l_bfgs_b(func=self.llik,x0=scipy.stats.expon.rvs(.1,size=3),bounds=[(1e-9,None)]*3,approx_grad=True,factr=10.,epsilon=.0001,pgtol=1e-30)
         return o
 
-    def run_mcmc(self,n=5000,prior=[10.]*3,thin=10,burn=0.2):
-
-        # file
-        f = open('mcmc.txt','w')
+    def run_mcmc(self,n=5000,prior=[10.]*3,proposal_tune=[1.]*3,thin=10,burn=0.2,fn='mcmc.txt'):
+        '''
+        GitGraph.run_mcmc runs MCMC on GitGraph using GitGraph.llik
+        '''
+        # log mcmc output
+        f = open(fn,'w')
         f.write('cycle\tlnPosterior\tlnLikelihood\tlnPrior\trate_branch\trate_merge\trate_commit\n')
         
         # initialize mcmc
@@ -115,7 +146,9 @@ class GitGraph(object):
             # propose state
             p_idx = random.sample(range(len(params)),1)[0]
             p_old = params[p_idx]
-            params[p_idx],lnMH=self.propose(params[p_idx])
+            r = scipy.exp(proposal_tune[p_idx]*(.5-scipy.stats.uniform.rvs()))
+            params[p_idx] *= r
+            lnMH = scipy.log(r)
 
             # evaluate MH ratio 
             new_lnL = self.llik(params)
@@ -140,29 +173,10 @@ class GitGraph(object):
             else:
                 params[p_idx] = p_old
 
+            # write to log
             if i % thin == 0:
                 print i,old_lnL,old_lnP,params
                 if i >= burn*n:
                     s = '\t'.join([ str(e) for e in [i,old_lnL+old_lnP,old_lnL,old_lnP]+params ]) + '\n'
                     f.write(s)
         f.close()
-
-    def propose(self,p,d=1.0):
-        r = scipy.exp(d*(.5-scipy.stats.uniform.rvs()))
-        return p*r, scipy.log(r)
-        
-
-class GitNode(object):
-    def __init__(self,sha='',t=0.,m=''):
-        self.sha = sha
-        self.time = t
-        self.msg = m
-        self.parents = [] 
-        self.children = []
-
-    def add_parent(self,parent):
-        self.parents.append(parent)
-
-    def add_child(self,child):
-        self.children.append(child)
-
