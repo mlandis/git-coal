@@ -127,7 +127,7 @@ class GitGraph(object):
         o = scipy.optimize.fmin_l_bfgs_b(func=self.llik,x0=scipy.stats.expon.rvs(.1,size=3),bounds=[(1e-9,None)]*3,approx_grad=True,factr=10.,epsilon=.0001,pgtol=1e-30)
         return o
 
-    def run_mcmc(self,n=5000,prior=[10.]*3,proposal_tune=[1.]*3,thin=10,burn=0.2,fn='mcmc.txt'):
+    def run_mcmc(self,n=5000,prior=[10.]*3,proposal_tune=[1.]*3,thin=10,burn=0.2,fn='mcmc.txt',stdout=True):
         '''
         GitGraph.run_mcmc runs MCMC on GitGraph using GitGraph.llik
         '''
@@ -175,8 +175,11 @@ class GitGraph(object):
 
             # write to log
             if i % thin == 0:
-                print i,old_lnL,old_lnP,params
+                if stdout:
+                    print i,old_lnL,old_lnP,params
                 if i >= burn*n:
                     s = '\t'.join([ str(e) for e in [i,old_lnL+old_lnP,old_lnL,old_lnP]+params ]) + '\n'
                     f.write(s)
         f.close()
+        if stdout:
+            print 'Done!'
