@@ -32,7 +32,7 @@ class GitGraph(object):
         self.gain = {}
         self.loss = {}
 
-    def make_graph(self,fp='.'):
+    def make_graph(self,fp='.',in_days=True):
         '''
         Populates GitGraph using GitNode objects.
         Reads git-log output from directory at fp.
@@ -53,6 +53,9 @@ class GitGraph(object):
             
             nd_sha = nd_args[0]
             nd_t = float(nd_args[2].split(' ')[0])
+            print nd_t
+            if in_days:
+                nd_t /= 86400.
             nd_msg = nd_args[3]
 
             # add new nodes to graph
@@ -90,9 +93,7 @@ class GitGraph(object):
         '''
         
         x=self.count
-        branch_rate=args[0]
-        merge_rate=args[1]
-        commit_rate=args[2]
+        branch_rate,merge_rate,commit_rate=args
         
         llik = 0.
         old_n = 1
@@ -104,12 +105,9 @@ class GitGraph(object):
                 continue
 
             n = x[t]
-            if n > old_n:
-                r = branch_rate
-            elif n < old_n:
-                r = merge_rate
-            else:
-                r = commit_rate
+            if n > old_n: r = branch_rate
+            elif n < old_n: r = merge_rate
+            else: r = commit_rate
 
             if n > 1: 
                 llik += scipy.log(r) - n * (branch_rate + merge_rate + commit_rate) * (t - old_t)
